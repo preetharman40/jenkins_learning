@@ -30,7 +30,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                echo "Running unit tests..."
+                echo "Testing multibranch..."
             }
         }
         stage('Deploy to Production') {
