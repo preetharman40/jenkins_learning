@@ -9,15 +9,23 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo "Building ${APP_NAME}..."
+                echo "Building the project..."
             }
         }
         stage('Test') {
             steps {
-                echo "Running tests..."
-                // Fun task: If you want to see a 'Failure', change 'true' to 'false' below
-                sh 'false' 
+                echo "Running unit tests..."
             }
+        }
+        stage('Deploy to Production') {
+            // This stage will ONLY run if the branch is 'main'
+            when {
+                branch 'main'
+            }
+            steps {
+                echo "🚀 DEPLOYING TO PRODUCTION! 🚀"
+            }
+        
         }
     }
 
