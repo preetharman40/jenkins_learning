@@ -12,7 +12,7 @@ pipeline {
             steps {
                 script {
                     // This is "Scripted" Groovy inside a Declarative Pipeline
-                    def myName = "Senior DevOps Student"
+                    def myName = "Harman"
                     def hour = 14 // Imagine it's 2 PM
 
                     if (hour < 12) {
