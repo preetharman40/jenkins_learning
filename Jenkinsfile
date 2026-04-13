@@ -7,6 +7,22 @@ pipeline {
     }
 
     stages {
+
+        stage('Logic Check') {
+            steps {
+                script {
+                    // This is "Scripted" Groovy inside a Declarative Pipeline
+                    def myName = "Senior DevOps Student"
+                    def hour = 14 // Imagine it's 2 PM
+
+                    if (hour < 12) {
+                        echo "Good morning, ${myName}!"
+                    } else {
+                        echo "Good afternoon, ${myName}!"
+                    }
+                }
+            }
+        }
         stage('Build') {
             steps {
                 echo "Building ${APP_NAME}..."
@@ -16,7 +32,7 @@ pipeline {
             steps {
                 echo "Running tests..."
                 // Fun task: If you want to see a 'Failure', change 'true' to 'false' below
-                sh 'false' 
+                sh 'true' 
             }
         }
     }
