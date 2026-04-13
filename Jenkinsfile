@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         APP_NAME = "MyCoolApp"
-        VERSION = "1.0.1" // Let's bump the version!
+        VERSION = "1.0.2" // Let's bump the version!
     }
 
     stages {
