@@ -1,45 +1,18 @@
-// this has parallel LANE
-
 pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Docker Version Check') {
             steps {
-                echo "Building the app..."
+                // Let's see if Jenkins can talk to Docker
+                sh 'docker --version'
             }
         }
-        
-        // This is the magic part
-        stage('Run All Tests') {
-            parallel {
-                stage('UI Tests') {
-                    steps {
-                        echo "Starting UI Tests..."
-                        sh 'sleep 5' // Simulates a 5-second task
-                        echo "UI Tests Finished!"
-                    }
-                }
-                stage('API Tests') {
-                    steps {
-                        echo "Starting API Tests..."
-                        sh 'sleep 5'
-                        echo "API Tests Finished!"
-                    }
-                }
-                stage('Security Scan') {
-                    steps {
-                        echo "Starting Security Scan..."
-                        sh 'sleep 5'
-                        echo "Security Scan Finished!"
-                    }
-                }
-            }
-        }
-
-        stage('Deploy') {
+        stage('Build Docker Image') {
             steps {
-                echo "Deploying after all parallel tasks succeeded!"
+                // This builds an image named 'my-first-image' using the Dockerfile in the current folder (.)
+                sh 'docker build -t my-first-image .'
+                echo "Docker Image Built Successfully!"
             }
         }
     }
