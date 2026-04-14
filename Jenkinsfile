@@ -26,12 +26,15 @@ pipeline {
         }
         stage('Build') {
             steps {
-                echo "Building the project..."
+                echo "Creating the application package..."
+                // This creates a file named 'my-app.txt' with some content
+                sh 'echo "Version 1.0.2 - Built on $(date)" > my-app.txt'
             }
         }
         stage('Test') {
             steps {
-                echo "Running unit tests..."
+                echo "Testing..."
+                sh 'cat my-app.txt'
             }
         }
         stage('Deploy with Secret') {
@@ -61,7 +64,9 @@ pipeline {
             echo 'Cleaning up the workspace... (I always run)'
         }
         success {
-            echo 'HOORAY! The build passed. Sending notification to the team...'
+            // This tells Jenkins to save the file so we can download it later
+            archiveArtifacts artifacts: 'my-app.txt', fingerprint: true
+            echo "Artifact archived successfully!"
         }
         failure {
             echo 'OH NO! The build failed. Paging the DevOps engineer...'
