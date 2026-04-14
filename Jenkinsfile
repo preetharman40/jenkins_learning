@@ -1,85 +1,46 @@
+// this has parallel LANE
+
 pipeline {
-    agent {
-        label 'built-in'
-    }
-    
-    environment {
-        APP_NAME = "MyCoolApp"
-        VERSION = "1.0.3" // Let's bump the version!
-        API_KEY = credentials('MY_API_KEY')
-    }
+    agent any
 
     stages {
-
-        stage('Logic Check') {
+        stage('Build') {
             steps {
-                script {
-                    // This is "Scripted" Groovy inside a Declarative Pipeline
-                    def myName = "Harman"
-                    def hour = 14 // Imagine it's 2 PM
-
-                    if (hour < 12) {
-                        echo "Good morning, ${myName}!"
-                    } else {
-                        echo "Good afternoon, ${myName}!"
+                echo "Building the app..."
+            }
+        }
+        
+        // This is the magic part
+        stage('Run All Tests') {
+            parallel {
+                stage('UI Tests') {
+                    steps {
+                        echo "Starting UI Tests..."
+                        sh 'sleep 5' // Simulates a 5-second task
+                        echo "UI Tests Finished!"
+                    }
+                }
+                stage('API Tests') {
+                    steps {
+                        echo "Starting API Tests..."
+                        sh 'sleep 5'
+                        echo "API Tests Finished!"
+                    }
+                }
+                stage('Security Scan') {
+                    steps {
+                        echo "Starting Security Scan..."
+                        sh 'sleep 5'
+                        echo "Security Scan Finished!"
                     }
                 }
             }
         }
-        stage('Check Worker Info'){
-            steps {
-                echo "Running on node: ${env.NODE_NAME}"
-                echo "I am specifically looking for a worker labeled 'built-in'"
-            }
-        }
 
-
-        stage('Build') {
+        stage('Deploy') {
             steps {
-                echo "Creating the application package..."
-                // This creates a file named 'my-app.txt' with some content
-                sh 'echo "Version 1.0.2 - Built on $(date)" > my-app.txt'
+                echo "Deploying after all parallel tasks succeeded!"
             }
-        }
-        stage('Test') {
-            steps {
-                echo "Testing..."
-                sh 'cat my-app.txt'
-            }
-        }
-        stage('Deploy with Secret') {
-            steps {
-                echo "Attempting to deploy..."
-                // Even if we try to print it, Jenkins will protect us!
-                echo "The secret key is: ${API_KEY}"
-            }
-        }
-        stage('Deploy to Production') {
-            // This stage will ONLY run if the branch is 'main'
-            when {
-                expression { 
-                    return env.BRANCH_NAME == 'main' || env.GIT_BRANCH == 'origin/main' 
-                }
-            }
-            steps {
-                echo "🚀 DEPLOYING TO PRODUCTION! 🚀"
-            }
-        
-        }
-    }
-
-    // This is the new part!
-    post {
-        always {
-            echo 'Cleaning up the workspace... (I always run)'
-        }
-        success {
-            // This tells Jenkins to save the file so we can download it later
-            archiveArtifacts artifacts: 'my-app.txt', fingerprint: true
-            echo "Artifact archived successfully!"
-        }
-        failure {
-            echo 'OH NO! The build failed. Paging the DevOps engineer...'
         }
     }
 }
