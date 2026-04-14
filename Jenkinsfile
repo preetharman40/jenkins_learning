@@ -4,6 +4,7 @@ pipeline {
     environment {
         APP_NAME = "MyCoolApp"
         VERSION = "1.0.2" // Let's bump the version!
+        API_KEY = credentials('MY_API_KEY')
     }
 
     stages {
@@ -31,6 +32,13 @@ pipeline {
         stage('Test') {
             steps {
                 echo "Running unit tests..."
+            }
+        }
+        stage('Deploy with Secret') {
+            steps {
+                echo "Attempting to deploy..."
+                // Even if we try to print it, Jenkins will protect us!
+                echo "The secret key is: ${API_KEY}"
             }
         }
         stage('Deploy to Production') {
