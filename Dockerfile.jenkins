@@ -1,0 +1,6 @@
+FROM jenkins/jenkins:lts
+USER root
+# Install the Docker CLI inside the Jenkins image
+RUN apt-get update && apt-get install -y docker.io
+# Switch back to the jenkins user for security
+USER jenkins
