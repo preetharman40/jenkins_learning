@@ -1,25 +1,25 @@
 pipeline {
-    agent any
+    // Tell Jenkins to ONLY use your new Proxmox worker
+    agent {
+        label 'linux-prod'
+    }
 
     stages {
-        stage('Build Image') {
+        stage('Environment Audit') {
             steps {
-                sh 'docker build -t my-first-image .'
+                echo "🔍 Checking my surroundings..."
+                // This prints the hostname and IP of the machine running the build
+                sh 'hostname'
+                sh 'ip addr show eth0 || ip addr show ens18' 
+                echo "If the hostname matches your Proxmox VM, we are officially in production!"
             }
         }
         
-        stage('Deploy/Test Run') {
+        stage('Docker Test on VM') {
             steps {
-                echo "🚀 Deploying the container..."
-                // This runs the container, shows the output, then deletes it (--rm)
-                sh 'docker run --rm my-first-image'
+                echo "Testing if Docker works on the new VM Agent..."
+                sh 'docker --version'
             }
-        }
-    }
-    
-    post {
-        success {
-            echo "SUCCESS: The code was built into an image and successfully 'deployed'!"
         }
     }
 }
