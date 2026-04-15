@@ -1,25 +1,27 @@
 pipeline {
-    // Tell Jenkins to ONLY use your new Proxmox worker
-    agent {
-        label 'linux-prod'
-    }
+    agent { label 'linux-prod' }
 
     stages {
-        stage('Environment Audit') {
+        stage('Build & Test') {
             steps {
-                echo "🔍 Checking my surroundings..."
-                // This prints the hostname and IP of the machine running the build
-                sh 'hostname'
-                sh 'ip addr show eth0 || ip addr show ens18' 
-                echo "If the hostname matches your Proxmox VM, we are officially in production!"
+                echo "Building on Proxmox VM..."
+                sh 'docker build -t my-app:${BUILD_NUMBER} .'
+                sh 'docker run --rm my-app:${BUILD_NUMBER} echo "Tests Passed!"'
             }
         }
-        
-        stage('Docker Test on VM') {
-            steps {
-                echo "Testing if Docker works on the new VM Agent..."
-                sh 'docker --version'
-            }
+    }
+
+    post {
+        always {
+            // 1. Clean the workspace files (Source code, logs, etc.)
+            cleanWs()
+            
+            // 2. Clean up dangling Docker images to save disk space
+            // The '|| true' ensures the build doesn't fail if there's nothing to prune
+            sh 'docker image prune -f || true'
+        }
+        success {
+            echo "✅ Build # ${BUILD_NUMBER} successful and environment cleaned."
         }
     }
 }
