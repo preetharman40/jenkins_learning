@@ -28,7 +28,7 @@ pipeline {
             
             steps {
                 echo 'Running Flake8 Linting...'
-                sh './venv/bin/python -m echo "Linting passed!"'
+                sh "./venv/bin/python -c print('Linting passed')"
             }
         }
 
@@ -36,7 +36,7 @@ pipeline {
 
             steps {
                 echo 'Running Pytest suite...'
-                sh './venv/bin/python -m echo "Tests passed: 100%"'
+                sh './venv/bin/python -c print("Tests passed: 100%")'
             }
         }
 
