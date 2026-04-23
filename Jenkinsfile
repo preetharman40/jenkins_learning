@@ -56,20 +56,23 @@ pipeline {
                                                   passwordVariable: 'GH_PAT')]) {
 
 
-                    sh """
-                        # tag the image for github container Registry
-                        docker tag ${APP_NAME}:${VERSION} ghcr.io/${GH_USER}/${APP_NAME}:${VERSION}
-                        docker tag ${APP_NAME}:${VERSION} ghcr.io/${GH_USER}/${APP_NAME}:latest
-                    
+                    sh '''
+
                         # login using the masked credentials
-                        echo ${GH_PAT} | docker login ghcr.io -u ${GH_USER} --password-stdin
+                        echo $GH_PAT | docker login ghcr.io -u $GH_USER --password-stdin
+                        
+                        # tag the image for github container Registry
+                        docker tag $APP_NAME:$VERSION ghcr.io/$GH_USER/$APP_NAME:$VERSION
+                        docker tag $APP_NAME:$VERSION ghcr.io/$GH_USER/$APP_NAME:latest
+                    
+                        
 
                         #Push the images
-                        docker push ghcr.io/${GH_USER}/${APP_NAME}:${VERSION}
-                        docker push ghcr.io/${GH_USER}/${APP_NAME}:latest
+                        docker push ghcr.io/$GH_USER/$APP_NAME:$VERSION
+                        docker push ghcr.io/$GH_USER/$APP_NAME:latest
                     
                     
-                    """
+                    '''
 
                 }
             }
