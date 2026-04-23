@@ -1,0 +1,104 @@
+pipeline {
+    agent any
+
+    environment {
+        PYTHON_VERSION = '3.11'
+        REPORT_DIR = 'reports'
+        JUNIT_REPORT = 'reports/junit.xml'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Branch Info') {
+            steps {
+                echo "Build Number: ${env.BUILD_NUMBER}"
+                echo "Branch Name: ${env.BRANCH_NAME}"
+
+                script {
+                    if (env.BRANCH_NAME == 'develop' || env.BRANCH_NAME == 'staging' || env.BRANCH_NAME == 'main') {
+                        echo "This branch is eligible for Docker build and later deployment flow."
+                    } else {
+                        echo "This branch is CI-only."
+                    }
+                }
+            }
+        }
+
+        stage('Setup Python') {
+            steps {
+                sh '''
+                    python3 --version || true
+                    mkdir -p ${REPORT_DIR}
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    python3 -m pip install --upgrade pip
+                    pip3 install -r requirements.txt
+                    pip3 install flake8 pytest
+                '''
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh '''
+                    flake8 .
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    pytest --junitxml=${JUNIT_REPORT}
+                '''
+            }
+        }
+
+        stage('Docker Eligible Branch Check') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'staging'
+                    branch 'main'
+                }
+            }
+            steps {
+                echo "Docker build would run on this branch in the next phase."
+            }
+        }
+
+        stage('Production Approval Placeholder') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo "Manual production approval will be added in a later phase."
+            }
+        }
+    }
+
+    post {
+        always {
+            junit testResults: 'reports/junit.xml', allowEmptyResults: false
+            echo "Final Result: ${currentBuild.currentResult}"
+        }
+
+        success {
+            echo 'Branch-aware CI pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed. Notification logic will be added later.'
+        }
+    }
+}
