@@ -60,7 +60,7 @@ pipeline {
 
                         # login using the masked credentials
                         echo $GH_PAT | docker login ghcr.io -u $GH_USER --password-stdin
-                        
+
                         # tag the image for github container Registry
                         docker tag $APP_NAME:$VERSION ghcr.io/$GH_USER/$APP_NAME:$VERSION
                         docker tag $APP_NAME:$VERSION ghcr.io/$GH_USER/$APP_NAME:latest
@@ -84,8 +84,17 @@ pipeline {
         stage('Deploy to DEV') {
 
             steps {
-                echo 'Running Deploting to Development....'
-                echo 'Deployed to DEV'
+                echo "Starting FastPay v${VERSION} on DEV..."
+                sh'''
+                    # Stop and remove old container if it exists
+                    docker stop $APP_NAME-dev || true
+                    docker rm $APP_NAME-dev || true
+
+                    # Run the new container
+                    docker run -d --name $APP_NAME-dev -p 8081:8080 ghcr.io/preetharman40/$APP_NAME:$VERSION
+
+                '''
+                echo 'FastPay is live on port 8081!'
             }
         }
 
